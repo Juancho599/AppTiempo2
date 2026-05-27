@@ -1,109 +1,122 @@
-AppTiempo
+AWS | Serverless | Lambda | API Gateway | Flask
 
-AppTiempo es una aplicación desarrollada en Python con libreria Flask, que permite consultar el clima actual de cualquier ciudad mediante la API de OpenWeatherMap
+AppTiempo2 — Serverless Weather App (AWS)
+AppTiempo2 es la evolución cloud de la aplicación AppTiempo original.
+Esta versión migra una aplicación Flask monolítica a una arquitectura serverless en AWS utilizando AWS Lambda y API Gateway.
 
-El proyecto incluye contenedorización con Docker y plantillas HTML simples para mostrar la información en un navegador.
+Descripción
+AppTiempo2 permite consultar el clima actual de cualquier ciudad mediante la API de OpenWeatherMap, a través de una interfaz web simple construida con Flask.
+✅ Migración de app local → cloud
+✅ Arquitectura serverless
+✅ Despliegue sin servidores (AWS Lambda)
+✅ Exposición HTTP mediante API Gateway
 
-Funcionalidades
+Arquitectura
+La aplicación sigue el siguiente flujo:
+Cliente (browser)
+↓
+API Gateway (REST API)
+↓
+AWS Lambda
+↓
+Flask (awsgi adapter)
+↓
+OpenWeather API
 
-Búsqueda de clima por ciudad.
+Decisiones técnicas importantes
+Durante la migración se resolvieron varios desafíos reales:
 
-Muestra temperatura, sensación térmica, humedad y estado del cielo.
+Uso de aws-wsgi (awsgi) para adaptar Flask a Lambda
+Configuración de ProxyFix para manejar headers detrás de API Gateway
+Correcciones de routing entre Flask y API Gateway
+Manejo de variables de entorno para API Key
+Debug de errores típicos como:
 
-Compatible con múltiples ubicaciones alrededor del mundo.
+KeyError: httpMethod
+Internal Server Error
 
-Preparado para ejecutarse en Docker.
 
-Interfaz web sencilla con Flask + HTML (templates).
+Migración de HTTP API → REST API por compatibilidad con WSGI
+
+
+Nota importante sobre API Gateway
+Se utiliza REST API (API Gateway v1) en lugar de HTTP API porque:
+
+REST API usa payload format 1.0
+Incluye httpMethod, requerido por awsgi
+HTTP API (v2.0) no es completamente compatible con WSGI adapters
+
+
+📂 Estructura del proyecto
+AppTiempo2/
+├── app.py                # Aplicación Flask adaptada a Lambda
+├── templates/            # HTML (Jinja2)
+├── lambda_package/       # Paquete listo para deploy
+│   ├── app.py
+│   ├── templates/
+│   ├── flask/
+│   ├── requests/
+│   ├── awsgi/
+│   └── app.zip
+├── requirements.txt
+├── README.md
+
 
 Tecnologías utilizadas
 
-Lenguaje: Python 3
+Python 3
+Flask
+AWS Lambda
+API Gateway (REST API)
+OpenWeatherMap API
+awsgi (WSGI adapter)
+🔐 Variables de entorno
+La aplicación utiliza una variable de entorno para la API Key:
+API_KEY=TU_API_KEY
 
-Framework: Flask
+Debe configurarse en AWS Lambda.
 
-API: OpenWeatherMap
+📦 Despliegue en AWS (resumen)
 
-Frontend: HTML + Jinja2 (templates)
+Crear función Lambda (Python)
+Subir paquete .zip con dependencias
+Configurar handler:
 
-Contenedores: Docker
-
-Dependencias: requirements.txt
-
-Instalación y uso
-
-1. Clonar el repositorio
-git clone https://github.com/Juancho599/AppTiempo.git
-
-2. Posicionarse en a la carpeta AppTiempo  
-cd AppTiempo
-
-3. Dentro de la carpeta AppTiempo, crear un entorno virtual con: 
-python -m venv venv
-
-4. Activá el entorno virtual desde la Terminal de tu S.O.
-source venv/bin/activate   # Linux/Mac
-venv\Scripts\activate      # Windows
-
-5. Instalar dependencias en la Terminal
-pip install -r requirements.txt                                                                                                  ó en caso de que tengas Python con otras versiones:  python3 -m pip install -r requirements.txt 
+app.lambda_handler
 
 
-6. Configurar la API Key de OpenWeatherMap
-
-Crea un archivo llamado .env dentro AppTiempo con el contenido:
-
-API_KEY=TU_API_KEY_DE_OPENWEATHER
-
-Podés obtener una API Key gratuita en: https://openweathermap.org/appid
-
-7. Luego mueve el archivo .env hacia .gitignore
-
-8. Ejecutar la aplicación localmente
-python MainTiempo.py
+Configurar variable de entorno API_KEY
+Crear trigger con API Gateway (REST API)
+Obtener URL pública
 
 
-La aplicación la podes ejecutar en la url:
-http://127.0.0.1:5000
+🌐 Uso
+Acceder a la URL proporcionada por API Gateway:
+https://xxxx.execute-api.amazonaws.com/prod/
 
-Uso con Docker
+Ingresar una ciudad y visualizar:
 
-Construir la imagen:
-
-docker build -t app-tiempo
-
-
-Ejecutar el contenedor:
-
-docker run -d -p 5000:5000 --env API_KEY=TU_API_KEY_DE_OPENWEATHER app-tiempo
-ó si usas Docker Desktop, en la seccion de Imagenes, vas a encontrar el nombre de AppTiempo. Tenes que hacer click en "Start"
-
-Abrir en el navegador:
-http://localhost:5000
-
-<img width="1140" height="512" alt="FrontMain" src="https://github.com/user-attachments/assets/5a036aed-24b5-4c1e-802a-c88f2b70f536" />
-<img width="929" height="341" alt="NombreDeCiudad" src="https://github.com/user-attachments/assets/899557c5-7b8e-475f-8f59-ed1be15cfba1" />
-<img width="926" height="412" alt="DatosClima" src="https://github.com/user-attachments/assets/66bca90c-e142-4168-84cc-7a54d49fb071" />
+Temperatura
+Descripción del clima
+Humedad
+Velocidad del viento
 
 
-Para este proyecto utilicé:
+📈 Evolución respecto a AppTiempo (v1)
+Característicav1 (Local)v2 (Serverless)HostingLocalhostAWS LambdaEscalabilidadManualAutomáticaInfraestructuraServidorServerlessDeploymentManualCloud
 
-Integración de APIs con OpenWeatherMap.
+🚧 Mejoras futuras
 
-Desarrollo de aplicaciones web con Flask.
+API REST (JSON) sin frontend HTML
+Integración con DynamoDB (cache)
+Manejo de errores más robusto
+Internacionalización (idioma/unidades)
+CI/CD con GitHub Actions
 
-Template HTML con Jinja2.
 
-Contenerización con Docker.
+💡 Sobre este proyecto
+Este proyecto fue creado como práctica de migración a cloud y arquitectura serverless, enfrentando problemas reales de integración entre servicios AWS y frameworks tradicionales.
 
-Manejo de variables de entorno con .env.
-
-Mejoras a futuro:
-
- Agregar pronóstico extendido de varios días.
-
- Implementar selección de idioma y unidades (°C/°F).
-
- Agregar logs para depuración.
-
- Desplegar en la nube con Heroku y AWS
+👨‍💻 Autor
+Juan Gabriel Bregonzi
+Proyecto orientado a aprendizaje y preparación para certificaciones AWS 
