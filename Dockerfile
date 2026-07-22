@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 5000
 
 # Comando para ejecutar la app
-CMD ["python", "appMain"]
+CMD ["python", "appMain.py"]
