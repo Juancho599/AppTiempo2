@@ -1,3 +1,16 @@
 __pycache__/
 *.pyc
 env/
+# Python
+__pycache__/
+*.pyc
+
+# Pytest
+.pytest_cache/
+
+# Entornos virtuales
+env/
+venv/
+
+# Variables de entorno
+.env
